@@ -3,6 +3,10 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSG } from "three-csg-ts";
 import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import * as dat from "dat.gui";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
+import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
+import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
 
 // 创建场景
 const scene = new THREE.Scene();
@@ -77,9 +81,26 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
-// 创建 PMREM 生成器
-const pmremGenerator = new THREE.PMREMGenerator(renderer);
-pmremGenerator.compileEquirectangularShader();
+// 设置后处理
+const composer = new EffectComposer(renderer);
+
+// 添加基础渲染通道
+const renderPass = new RenderPass(scene, camera);
+composer.addPass(renderPass);
+
+// 添加GTAO通道
+const gtaoPass = new GTAOPass(
+  scene,
+  camera,
+  window.innerWidth,
+  window.innerHeight
+);
+gtaoPass.output = GTAOPass.OUTPUT.Default;
+composer.addPass(gtaoPass);
+
+// 添加输出通道
+const outputPass = new OutputPass();
+composer.addPass(outputPass);
 
 // 添加轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement);
@@ -410,7 +431,7 @@ renderingFolder.open();
 function animate() {
   requestAnimationFrame(animate);
   controls.update();
-  renderer.render(scene, camera);
+  composer.render();
 }
 
 // 处理窗口大小变化
@@ -418,6 +439,8 @@ window.addEventListener("resize", () => {
   camera.aspect = window.innerWidth / window.innerHeight;
   camera.updateProjectionMatrix();
   renderer.setSize(window.innerWidth, window.innerHeight);
+  composer.setSize(window.innerWidth, window.innerHeight);
+  gtaoPass.setSize(window.innerWidth, window.innerHeight);
 });
 
 animate();
