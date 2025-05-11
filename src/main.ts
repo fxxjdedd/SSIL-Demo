@@ -86,16 +86,8 @@ scene.add(ambientLight);
 
 // 添加平行光
 const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
-parallelLight.position.set(-3, 2, 1);
+parallelLight.position.set(-3, 2, -2);
 parallelLight.castShadow = true;
-parallelLight.shadow.mapSize.width = 2048;
-parallelLight.shadow.mapSize.height = 2048;
-parallelLight.shadow.camera.near = 0.1;
-parallelLight.shadow.camera.far = 15;
-parallelLight.shadow.camera.left = -5;
-parallelLight.shadow.camera.right = 5;
-parallelLight.shadow.camera.top = 5;
-parallelLight.shadow.camera.bottom = -5;
 scene.add(parallelLight);
 
 // 可视化平行光
