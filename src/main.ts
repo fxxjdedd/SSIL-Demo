@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
+import { DirectionalLightHelper, PointLightHelper } from "three";
 
 // 创建场景
 const scene = new THREE.Scene();
@@ -34,12 +35,43 @@ directionalLight.position.set(5, 5, 5);
 directionalLight.castShadow = true;
 scene.add(directionalLight);
 
+// 添加平行光
+const parallelLight = new THREE.DirectionalLight(0xffffff, 0.5);
+parallelLight.position.set(2, 5, 2);
+parallelLight.castShadow = true;
+scene.add(parallelLight);
+
+// 可视化平行光
+const parallelLightHelper = new THREE.DirectionalLightHelper(
+  parallelLight,
+  0.5,
+  0xffaa00
+);
+scene.add(parallelLightHelper);
+
+// 添加点光源
+const pointLight = new THREE.PointLight(0xffffff, 0.6, 10);
+pointLight.position.set(0, 2, 0);
+pointLight.castShadow = true;
+scene.add(pointLight);
+
+// 可视化点光源
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.3, 0x00aaff);
+scene.add(pointLightHelper);
+
+// 加载地板贴图
+const textureLoader = new THREE.TextureLoader();
+const woodTexture = textureLoader.load("/wood_floor_diff_1k.jpg");
+woodTexture.wrapS = THREE.RepeatWrapping;
+woodTexture.wrapT = THREE.RepeatWrapping;
+woodTexture.repeat.set(2, 2); // 让木纹重复，效果更自然
+
 // 创建地板
 const floorGeometry = new THREE.BoxGeometry(4, 0.2, 4);
 const floorMaterial = new THREE.MeshStandardMaterial({
-  color: 0x808080,
-  roughness: 0.8,
-  metalness: 0.2,
+  map: woodTexture,
+  roughness: 0.6,
+  metalness: 0.1,
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.position.y = -1.5;
@@ -48,9 +80,10 @@ scene.add(floor);
 
 // 创建墙壁
 const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0xffffff,
-  roughness: 0.7,
-  metalness: 0.1,
+  color: 0xefe5d8, // 温暖浅米色，和木地板更协调
+  roughness: 0.9, // 增加粗糙度
+  metalness: 0.0, // 降低金属感
+  envMapIntensity: 0.5,
 });
 
 // 后墙
@@ -69,30 +102,92 @@ leftWall.position.z = 0.1;
 leftWall.receiveShadow = true;
 scene.add(leftWall);
 
-// 加载床模型
-const loader = new GLTFLoader();
-loader.load(
-  "/realistic_bed_3d_model.glb",
-  (gltf) => {
-    const bed = gltf.scene;
-    // 调整床的位置和大小
-    bed.position.set(0, -1.5, -0.6);
-    bed.scale.set(1.3, 1.3, 1.3);
-    bed.traverse((child) => {
-      if (child instanceof THREE.Mesh) {
-        child.castShadow = true;
-        child.receiveShadow = true;
-      }
-    });
-    scene.add(bed);
-  },
-  (xhr) => {
-    console.log((xhr.loaded / xhr.total) * 100 + "% loaded");
-  },
-  (error) => {
-    console.error("An error happened", error);
-  }
+// 床组
+const bedGroup = new THREE.Group();
+bedGroup.position.set(0, 0, 0.3);
+
+// 床架
+const bedFrame = new THREE.Mesh(
+  new THREE.BoxGeometry(1.8, 0.25, 2.0),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
 );
+bedFrame.position.set(0, -1.375, -1.2);
+bedFrame.castShadow = true;
+bedGroup.add(bedFrame);
+
+// 床垫
+const mattress = new THREE.Mesh(
+  new THREE.BoxGeometry(1.7, 0.18, 1.9),
+  new THREE.MeshStandardMaterial({ color: 0xeeeeee })
+);
+mattress.position.set(0, -1.16, -1.2);
+mattress.castShadow = true;
+bedGroup.add(mattress);
+
+// 床头板
+const headboard = new THREE.Mesh(
+  new THREE.BoxGeometry(1.8, 1.2, 0.1),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+);
+headboard.position.set(0, -0.9, -2.15);
+headboard.castShadow = true;
+bedGroup.add(headboard);
+
+// 枕头
+const pillow = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5, 0.09, 0.3),
+  new THREE.MeshStandardMaterial({ color: 0xffffff })
+);
+pillow.position.set(0, -1.07, -2);
+pillow.castShadow = true;
+bedGroup.add(pillow);
+
+scene.add(bedGroup);
+
+// 左床头柜
+const leftNightstand = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5, 0.6, 0.4),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+);
+leftNightstand.position.set(-1.15, -1.2, -1.8);
+leftNightstand.castShadow = true;
+scene.add(leftNightstand);
+
+// 右床头柜
+const rightNightstand = new THREE.Mesh(
+  new THREE.BoxGeometry(0.5, 0.6, 0.4),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+);
+rightNightstand.position.set(1.15, -1.2, -1.8);
+rightNightstand.castShadow = true;
+scene.add(rightNightstand);
+
+// 床尾长凳
+const benchSeat = new THREE.Mesh(
+  new THREE.BoxGeometry(1.2, 0.45, 0.4),
+  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+);
+benchSeat.position.set(0, -1.275, 0.3);
+benchSeat.castShadow = true;
+scene.add(benchSeat);
+
+// 圆桌
+const tableGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.02, 32);
+const tableTopMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+const tableTop = new THREE.Mesh(tableGeometry, tableTopMaterial);
+tableTop.position.set(1.5, -1.2, 0);
+tableTop.castShadow = true;
+
+const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8);
+const tableLeg = new THREE.Mesh(legGeometry, tableTopMaterial);
+tableLeg.position.set(1.5, -1.55, 0);
+tableLeg.castShadow = true;
+
+const tableGroup = new THREE.Group();
+tableGroup.add(tableTop);
+tableGroup.add(tableLeg);
+tableGroup.position.set(-2.5, 0.5, 1.0);
+scene.add(tableGroup);
 
 // 动画循环
 function animate() {
