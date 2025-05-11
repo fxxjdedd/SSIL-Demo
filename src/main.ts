@@ -158,7 +158,7 @@ const ceilingMaterial = new THREE.MeshStandardMaterial({
 const ceilingGeometry = new THREE.PlaneGeometry(4, 4);
 const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
 ceiling.rotation.x = Math.PI / 2;
-ceiling.position.set(0, 0.91, 0);
+ceiling.position.set(0, 0.9, 0);
 ceiling.receiveShadow = true;
 ceiling.castShadow = true;
 scene.add(ceiling);
@@ -175,31 +175,31 @@ parallelLight.shadow.camera.bottom = -5;
 
 // 后墙
 const backWall = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 2.4, 0.2),
+  new THREE.BoxGeometry(4, 2.4, 0.05),
   wallMaterial
 );
 backWall.position.z = -2;
 backWall.position.y = -0.3; // 降低位置以保持底部对齐
-backWall.position.x = 0.1;
+backWall.position.x = 0.0;
 backWall.receiveShadow = true;
 backWall.castShadow = true;
 scene.add(backWall);
 
 // 右墙
 const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 2.4, 3.99),
+  new THREE.BoxGeometry(0.05, 2.4, 3.99),
   wallMaterial
 );
 rightWall.position.x = 2;
 rightWall.position.y = -0.3;
-rightWall.position.z = 0.1;
+rightWall.position.z = 0.0;
 rightWall.receiveShadow = true;
 rightWall.castShadow = true;
 scene.add(rightWall);
 
 // 前墙
 const frontWall = new THREE.Mesh(
-  new THREE.BoxGeometry(3.78, 2.4, 0.2),
+  new THREE.BoxGeometry(3.99, 2.4, 0.05),
   wallMaterial
 );
 frontWall.position.z = 2;
@@ -210,7 +210,7 @@ frontWall.castShadow = true;
 scene.add(frontWall);
 
 // 左墙（带窗户）
-const leftWallGeometry = new THREE.BoxGeometry(0.2, 2.4, 4);
+const leftWallGeometry = new THREE.BoxGeometry(0.05, 2.4, 4);
 const windowGeometry = new THREE.BoxGeometry(0.3, 1.2, 1.2);
 
 // 创建墙和窗户的网格
@@ -231,7 +231,7 @@ const leftWall = leftWallMesh;
 leftWall.material = wallMaterial;
 leftWall.position.x = -2;
 leftWall.position.y = -0.3;
-leftWall.position.z = 0.1;
+leftWall.position.z = 0;
 leftWall.receiveShadow = true;
 leftWall.castShadow = true;
 scene.add(leftWall);
