@@ -85,7 +85,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 // 添加平行光
-const parallelLight = new THREE.DirectionalLight(0xffffff, 0);
+const parallelLight = new THREE.DirectionalLight(0xffe4c4, 0.8);
 parallelLight.position.set(-3, 3, -2);
 parallelLight.castShadow = true;
 scene.add(parallelLight);
@@ -94,18 +94,18 @@ scene.add(parallelLight);
 const parallelLightHelper = new THREE.DirectionalLightHelper(
   parallelLight,
   0.5,
-  0xffaa00
+  0xffe4c4
 );
 scene.add(parallelLightHelper);
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffffff, 1.2, 100);
-pointLight.position.set(0, 0, -0.5);
+const pointLight = new THREE.PointLight(0xffe8d6, 1.2, 10);
+pointLight.position.set(0, -0.25, 0.25);
 pointLight.castShadow = true;
 scene.add(pointLight);
 
 // 可视化点光源
-const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.3, 0x00aaff);
+const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.3, 0xffe8d6);
 scene.add(pointLightHelper);
 
 // 添加辅助器
@@ -240,10 +240,24 @@ scene.add(leftWall);
 const bedGroup = new THREE.Group();
 bedGroup.position.set(0, 0, 0.3);
 
+// 家具材质
+const furnitureMaterial = new THREE.MeshStandardMaterial({
+  color: 0xf2f2f2, // 更灰白的颜色
+  roughness: 0.6, // 稍微降低粗糙度使表面更细腻
+  metalness: 0.05, // 降低金属感
+});
+
+// 创建一个稍微不同的材质用于床垫和枕头
+const beddingMaterial = new THREE.MeshStandardMaterial({
+  color: 0xfafafa, // 纯白偏灰
+  roughness: 0.5,
+  metalness: 0.05,
+});
+
 // 床架
 const bedFrame = new THREE.Mesh(
   new THREE.BoxGeometry(1.8, 0.25, 2.0),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+  furnitureMaterial
 );
 bedFrame.position.set(0, -1.375, -1.2);
 bedFrame.castShadow = true;
@@ -252,7 +266,7 @@ bedGroup.add(bedFrame);
 // 床垫
 const mattress = new THREE.Mesh(
   new THREE.BoxGeometry(1.7, 0.18, 1.9),
-  new THREE.MeshStandardMaterial({ color: 0xeeeeee })
+  beddingMaterial // 使用床上用品材质
 );
 mattress.position.set(0, -1.16, -1.2);
 mattress.castShadow = true;
@@ -261,7 +275,7 @@ bedGroup.add(mattress);
 // 床头板
 const headboard = new THREE.Mesh(
   new THREE.BoxGeometry(1.8, 1.2, 0.1),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+  furnitureMaterial
 );
 headboard.position.set(0, -0.9, -2.15);
 headboard.castShadow = true;
@@ -269,19 +283,28 @@ bedGroup.add(headboard);
 
 // 枕头
 const pillow = new THREE.Mesh(
-  new THREE.BoxGeometry(0.5, 0.09, 0.3),
-  new THREE.MeshStandardMaterial({ color: 0xffffff })
+  new THREE.BoxGeometry(0.6, 0.15, 0.44),
+  beddingMaterial // 使用床上用品材质
 );
-pillow.position.set(0, -1.07, -2);
+pillow.position.set(0.35, -1.07, -1.9);
 pillow.castShadow = true;
 bedGroup.add(pillow);
+
+// 枕头
+const pillow2 = new THREE.Mesh(
+  new THREE.BoxGeometry(0.6, 0.15, 0.44),
+  beddingMaterial // 使用床上用品材质
+);
+pillow2.position.set(-0.35, -1.07, -1.9);
+pillow2.castShadow = true;
+bedGroup.add(pillow2);
 
 scene.add(bedGroup);
 
 // 左床头柜
 const leftNightstand = new THREE.Mesh(
   new THREE.BoxGeometry(0.5, 0.6, 0.4),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+  furnitureMaterial
 );
 leftNightstand.position.set(-1.15, -1.2, -1.8);
 leftNightstand.castShadow = true;
@@ -290,7 +313,7 @@ scene.add(leftNightstand);
 // 右床头柜
 const rightNightstand = new THREE.Mesh(
   new THREE.BoxGeometry(0.5, 0.6, 0.4),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+  furnitureMaterial
 );
 rightNightstand.position.set(1.15, -1.2, -1.8);
 rightNightstand.castShadow = true;
@@ -299,7 +322,7 @@ scene.add(rightNightstand);
 // 床尾长凳
 const benchSeat = new THREE.Mesh(
   new THREE.BoxGeometry(1.2, 0.45, 0.4),
-  new THREE.MeshStandardMaterial({ color: 0x8b5a2b })
+  furnitureMaterial
 );
 benchSeat.position.set(0, -1.275, 0.3);
 benchSeat.castShadow = true;
@@ -307,13 +330,12 @@ scene.add(benchSeat);
 
 // 圆桌
 const tableGeometry = new THREE.CylinderGeometry(0.4, 0.4, 0.02, 32);
-const tableTopMaterial = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
-const tableTop = new THREE.Mesh(tableGeometry, tableTopMaterial);
+const tableTop = new THREE.Mesh(tableGeometry, furnitureMaterial);
 tableTop.position.set(1.5, -1.2, 0);
 tableTop.castShadow = true;
 
 const legGeometry = new THREE.CylinderGeometry(0.05, 0.05, 0.7, 8);
-const tableLeg = new THREE.Mesh(legGeometry, tableTopMaterial);
+const tableLeg = new THREE.Mesh(legGeometry, furnitureMaterial);
 tableLeg.position.set(1.5, -1.55, 0);
 tableLeg.castShadow = true;
 
