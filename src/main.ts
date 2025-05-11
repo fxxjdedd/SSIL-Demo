@@ -30,9 +30,17 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 // 添加平行光
-const parallelLight = new THREE.DirectionalLight(0xffffff, 0.5);
-parallelLight.position.set(2, 5, 2);
+const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
+parallelLight.position.set(-3, 2, 1);
 parallelLight.castShadow = true;
+parallelLight.shadow.mapSize.width = 2048;
+parallelLight.shadow.mapSize.height = 2048;
+parallelLight.shadow.camera.near = 0.1;
+parallelLight.shadow.camera.far = 15;
+parallelLight.shadow.camera.left = -5;
+parallelLight.shadow.camera.right = 5;
+parallelLight.shadow.camera.top = 5;
+parallelLight.shadow.camera.bottom = -5;
 scene.add(parallelLight);
 
 // 可视化平行光
@@ -90,14 +98,14 @@ scene.add(backWall);
 
 // 左墙（带窗户）
 const leftWallGeometry = new THREE.BoxGeometry(0.2, 3, 4);
-const windowGeometry = new THREE.BoxGeometry(0.3, 1.2, 1.2); // 窗户比墙稍厚，确保完全穿透
+const windowGeometry = new THREE.BoxGeometry(0.3, 1.2, 1.2);
 
 // 创建墙和窗户的网格
 const leftWallMesh = new THREE.Mesh(leftWallGeometry, wallMaterial);
 const windowMesh = new THREE.Mesh(windowGeometry);
 
-// 设置窗户位置（在墙的中上部）
-windowMesh.position.set(-2, 0.3, 0.1);
+// 重要：将两个网格都放在原点进行布尔运算
+windowMesh.position.set(0, 0.3, 0);
 
 // 执行布尔减法操作
 const leftWallCSG = CSG.fromMesh(leftWallMesh);
@@ -111,6 +119,7 @@ leftWall.position.x = -2;
 leftWall.position.y = 0;
 leftWall.position.z = 0.1;
 leftWall.receiveShadow = true;
+leftWall.castShadow = true;
 scene.add(leftWall);
 
 // 床组
