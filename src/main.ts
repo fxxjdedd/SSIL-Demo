@@ -7,7 +7,7 @@ import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass.js";
 import { GTAOPass } from "three/examples/jsm/postprocessing/GTAOPass.js";
 import { OutputPass } from "three/examples/jsm/postprocessing/OutputPass.js";
-
+import { kelvinToHex } from "./uitl";
 // 创建场景
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x006bd2); // 设置为天蓝色
@@ -57,7 +57,7 @@ debugFolder
   .onChange((value) => {
     axesHelper.visible = value;
     gridHelper.visible = value;
-    parallelLightHelper.visible = value;
+    // parallelLightHelper.visible = value;
     pointLightHelper.visible = value;
   });
 
@@ -111,23 +111,36 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 // 添加平行光
-const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
-parallelLight.position.set(-3, 3, -2);
-parallelLight.castShadow = true;
-scene.add(parallelLight);
+// const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
+// parallelLight.position.set(-3, 3, -2);
+// parallelLight.castShadow = true;
+// scene.add(parallelLight);
 
-// 可视化平行光
-const parallelLightHelper = new THREE.DirectionalLightHelper(
-  parallelLight,
-  0.5,
-  0xffe4c4
-);
-scene.add(parallelLightHelper);
+// // 可视化平行光
+// const parallelLightHelper = new THREE.DirectionalLightHelper(
+//   parallelLight,
+//   0.5,
+//   0xffe4c4
+// );
+// scene.add(parallelLightHelper);
+
+// // 为了更好地观察阴影效果，设置平行光的阴影参数
+// parallelLight.shadow.mapSize.width = 2048;
+// parallelLight.shadow.mapSize.height = 2048;
+// parallelLight.shadow.camera.near = 0.1;
+// parallelLight.shadow.camera.far = 15;
+// parallelLight.shadow.camera.left = -5;
+// parallelLight.shadow.camera.right = 5;
+// parallelLight.shadow.camera.top = 5;
+// parallelLight.shadow.camera.bottom = -5;
+// parallelLight.shadow.radius = 8; // 添加阴影模糊
+// parallelLight.shadow.bias = -0.001; // 添加阴影偏差值
+// parallelLight.shadow.normalBias = 0.02; // 添加法线偏差值
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffe8d6, 10, 300);
-pointLight.position.set(0, 0, 0.15);
-pointLight.power = 100;
+const pointLight = new THREE.PointLight(kelvinToHex(4000), 1, 5);
+pointLight.position.set(0.5, -0.2, -0.2);
+pointLight.power = 120;
 // pointLight.castShadow = true;
 pointLight.shadow.mapSize.width = 512;
 pointLight.shadow.mapSize.height = 512;
@@ -156,7 +169,7 @@ woodTexture.repeat.set(2, 2); // 让木纹重复，效果更自然
 const floorGeometry = new THREE.BoxGeometry(4, 0.2, 6);
 const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0xcccccc,
-  roughness: 0.8,
+  roughness: 1.0,
   metalness: 0.0,
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
@@ -197,19 +210,6 @@ const ceilingMaterial = new THREE.MeshStandardMaterial({
 // ceiling.receiveShadow = true;
 // ceiling.castShadow = true;
 // scene.add(ceiling);
-
-// 为了更好地观察阴影效果，设置平行光的阴影参数
-parallelLight.shadow.mapSize.width = 2048;
-parallelLight.shadow.mapSize.height = 2048;
-parallelLight.shadow.camera.near = 0.1;
-parallelLight.shadow.camera.far = 15;
-parallelLight.shadow.camera.left = -5;
-parallelLight.shadow.camera.right = 5;
-parallelLight.shadow.camera.top = 5;
-parallelLight.shadow.camera.bottom = -5;
-parallelLight.shadow.radius = 8; // 添加阴影模糊
-parallelLight.shadow.bias = -0.001; // 添加阴影偏差值
-parallelLight.shadow.normalBias = 0.02; // 添加法线偏差值
 
 // 后墙
 const backWall = new THREE.Mesh(
