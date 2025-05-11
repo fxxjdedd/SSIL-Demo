@@ -90,7 +90,7 @@ const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
 // 添加平行光
-const parallelLight = new THREE.DirectionalLight(0xffe4c4, 0.8);
+const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
 parallelLight.position.set(-3, 3, -2);
 parallelLight.castShadow = true;
 scene.add(parallelLight);
@@ -104,9 +104,9 @@ const parallelLightHelper = new THREE.DirectionalLightHelper(
 scene.add(parallelLightHelper);
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffe8d6, 1, 10);
-pointLight.position.set(0, -0.25, 0.25);
-pointLight.castShadow = true;
+const pointLight = new THREE.PointLight(0xffe8d6, 5, 30);
+pointLight.position.set(0, 0, 0.25);
+// pointLight.castShadow = true;
 pointLight.shadow.mapSize.width = 512;
 pointLight.shadow.mapSize.height = 512;
 pointLight.shadow.radius = 5;
@@ -133,7 +133,7 @@ woodTexture.repeat.set(2, 2); // 让木纹重复，效果更自然
 // 创建地板
 const floorGeometry = new THREE.BoxGeometry(4, 0.2, 6);
 const floorMaterial = new THREE.MeshStandardMaterial({
-  map: woodTexture,
+  color: 0xcccccc,
   roughness: 0.6,
   metalness: 0.1,
 });
@@ -145,16 +145,18 @@ scene.add(floor);
 // 创建墙壁
 const wallMaterial = new THREE.MeshPhysicalMaterial({
   color: 0xeeeeee,
-  roughness: 0.4,
-  metalness: 0.0,
-  transparent: false,
-  opacity: 0.3,
+  roughness: 0.7, // 增加粗糙度来增强磨砂效果
+  metalness: 0.1, // 略微增加金属感以增加光泽
+  transparent: true,
+  opacity: 0.4, // 降低不透明度
   side: THREE.DoubleSide,
-  transmission: 0.1,
+  transmission: 0.85, // 增加透射率
   thickness: 0.2,
-  clearcoat: 0.5,
-  clearcoatRoughness: 0.4,
-  ior: 1.2,
+  clearcoat: 0.8, // 增加清漆涂层强度
+  clearcoatRoughness: 0.6, // 增加清漆涂层的粗糙度
+  ior: 1.45, // 调整折射率更接近玻璃
+  attenuationDistance: 0.5, // 添加衰减距离
+  attenuationColor: new THREE.Color(0xffffff), // 添加衰减颜色
 });
 
 // 天花板使用不透明材质
@@ -166,13 +168,13 @@ const ceilingMaterial = new THREE.MeshStandardMaterial({
 });
 
 // 天花板
-const ceilingGeometry = new THREE.PlaneGeometry(4, 6);
-const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
-ceiling.rotation.x = Math.PI / 2;
-ceiling.position.set(0, 0.9, 0);
-ceiling.receiveShadow = true;
-ceiling.castShadow = true;
-scene.add(ceiling);
+// const ceilingGeometry = new THREE.PlaneGeometry(4, 6);
+// const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+// ceiling.rotation.x = Math.PI / 2;
+// ceiling.position.set(0, 0.9, 0);
+// ceiling.receiveShadow = true;
+// ceiling.castShadow = true;
+// scene.add(ceiling);
 
 // 为了更好地观察阴影效果，设置平行光的阴影参数
 parallelLight.shadow.mapSize.width = 2048;
@@ -193,7 +195,7 @@ backWall.position.z = -3;
 backWall.position.y = -0.3; // 降低位置以保持底部对齐
 backWall.position.x = 0.0;
 backWall.receiveShadow = true;
-backWall.castShadow = true;
+backWall.castShadow = false;
 scene.add(backWall);
 
 // 右墙
@@ -205,7 +207,7 @@ rightWall.position.x = 2;
 rightWall.position.y = -0.3;
 rightWall.position.z = 0.0;
 rightWall.receiveShadow = true;
-rightWall.castShadow = true;
+rightWall.castShadow = false;
 scene.add(rightWall);
 
 // 前墙
@@ -217,7 +219,7 @@ frontWall.position.z = 3;
 frontWall.position.y = -0.3;
 frontWall.position.x = 0;
 frontWall.receiveShadow = true;
-frontWall.castShadow = true;
+frontWall.castShadow = false;
 scene.add(frontWall);
 
 // 左墙（带窗户）
@@ -244,7 +246,7 @@ leftWall.position.x = -2;
 leftWall.position.y = -0.3;
 leftWall.position.z = 0;
 leftWall.receiveShadow = true;
-leftWall.castShadow = true;
+leftWall.castShadow = false;
 scene.add(leftWall);
 
 // 床组
