@@ -1,10 +1,62 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSG } from "three-csg-ts";
+import * as dat from "dat.gui";
 
 // 创建场景
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0xf0f0f0);
+
+// 调试配置对象
+const debugObject = {
+  wireframe: true,
+  showHelpers: true,
+};
+
+// 创建 GUI
+const gui = new dat.GUI();
+const debugFolder = gui.addFolder("Debug");
+debugFolder
+  .add(debugObject, "wireframe")
+  .name("线框模式")
+  .onChange((value) => {
+    // 更新所有材质的线框模式
+    const meshes = [
+      floor,
+      backWall,
+      leftWall,
+      bedFrame,
+      mattress,
+      headboard,
+      pillow,
+      leftNightstand,
+      rightNightstand,
+      benchSeat,
+      tableTop,
+      tableLeg,
+    ];
+
+    meshes.forEach((mesh) => {
+      if (
+        mesh.material instanceof THREE.MeshBasicMaterial ||
+        mesh.material instanceof THREE.MeshStandardMaterial
+      ) {
+        mesh.material.wireframe = value;
+      }
+    });
+  });
+
+debugFolder
+  .add(debugObject, "showHelpers")
+  .name("显示辅助器")
+  .onChange((value) => {
+    axesHelper.visible = value;
+    gridHelper.visible = value;
+    parallelLightHelper.visible = value;
+    pointLightHelper.visible = value;
+  });
+
+debugFolder.open();
 
 // 创建相机
 const camera = new THREE.PerspectiveCamera(
@@ -16,7 +68,10 @@ const camera = new THREE.PerspectiveCamera(
 camera.position.set(3, 3, 3);
 
 // 创建渲染器
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({
+  antialias: true,
+  alpha: true,
+});
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
@@ -60,6 +115,12 @@ scene.add(pointLight);
 // 可视化点光源
 const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.3, 0x00aaff);
 scene.add(pointLightHelper);
+
+// 添加辅助器
+const axesHelper = new THREE.AxesHelper(5);
+const gridHelper = new THREE.GridHelper(10, 10);
+scene.add(axesHelper);
+scene.add(gridHelper);
 
 // 加载地板贴图
 const textureLoader = new THREE.TextureLoader();
