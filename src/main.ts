@@ -6,7 +6,7 @@ import * as dat from "dat.gui";
 
 // 创建场景
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xf0f0f0);
+scene.background = new THREE.Color(0x006bd2); // 设置为天蓝色
 
 // 调试配置对象
 const debugObject = {
@@ -104,8 +104,9 @@ const parallelLightHelper = new THREE.DirectionalLightHelper(
 scene.add(parallelLightHelper);
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffe8d6, 5, 30);
-pointLight.position.set(0, 0, 0.25);
+const pointLight = new THREE.PointLight(0xffe8d6, 10, 300);
+pointLight.position.set(0, 0, 0.15);
+pointLight.power = 100;
 // pointLight.castShadow = true;
 pointLight.shadow.mapSize.width = 512;
 pointLight.shadow.mapSize.height = 512;
@@ -134,8 +135,8 @@ woodTexture.repeat.set(2, 2); // 让木纹重复，效果更自然
 const floorGeometry = new THREE.BoxGeometry(4, 0.2, 6);
 const floorMaterial = new THREE.MeshStandardMaterial({
   color: 0xcccccc,
-  roughness: 0.6,
-  metalness: 0.1,
+  roughness: 0.8,
+  metalness: 0.0,
 });
 const floor = new THREE.Mesh(floorGeometry, floorMaterial);
 floor.position.y = -1.5;
@@ -185,6 +186,9 @@ parallelLight.shadow.camera.left = -5;
 parallelLight.shadow.camera.right = 5;
 parallelLight.shadow.camera.top = 5;
 parallelLight.shadow.camera.bottom = -5;
+parallelLight.shadow.radius = 8; // 添加阴影模糊
+parallelLight.shadow.bias = -0.001; // 添加阴影偏差值
+parallelLight.shadow.normalBias = 0.02; // 添加法线偏差值
 
 // 后墙
 const backWall = new THREE.Mesh(
