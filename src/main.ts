@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { CSG } from "three-csg-ts";
+import { EXRLoader } from "three/examples/jsm/loaders/EXRLoader.js";
 import * as dat from "dat.gui";
 
 // 创建场景
@@ -76,6 +77,10 @@ renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
+// 创建 PMREM 生成器
+const pmremGenerator = new THREE.PMREMGenerator(renderer);
+pmremGenerator.compileEquirectangularShader();
+
 // 添加轨道控制器
 const controls = new OrbitControls(camera, renderer.domElement);
 controls.enableDamping = true;
@@ -99,9 +104,13 @@ const parallelLightHelper = new THREE.DirectionalLightHelper(
 scene.add(parallelLightHelper);
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffe8d6, 1.2, 10);
+const pointLight = new THREE.PointLight(0xffe8d6, 1, 10);
 pointLight.position.set(0, -0.25, 0.25);
 pointLight.castShadow = true;
+pointLight.shadow.mapSize.width = 512;
+pointLight.shadow.mapSize.height = 512;
+pointLight.shadow.radius = 5;
+pointLight.shadow.bias = -0.01;
 scene.add(pointLight);
 
 // 可视化点光源
@@ -122,7 +131,7 @@ woodTexture.wrapT = THREE.RepeatWrapping;
 woodTexture.repeat.set(2, 2); // 让木纹重复，效果更自然
 
 // 创建地板
-const floorGeometry = new THREE.BoxGeometry(4, 0.2, 4);
+const floorGeometry = new THREE.BoxGeometry(4, 0.2, 6);
 const floorMaterial = new THREE.MeshStandardMaterial({
   map: woodTexture,
   roughness: 0.6,
@@ -135,15 +144,17 @@ scene.add(floor);
 
 // 创建墙壁
 const wallMaterial = new THREE.MeshPhysicalMaterial({
-  color: 0xefe5d8,
-  roughness: 0.2,
-  metalness: 0.1,
-  transparent: true,
+  color: 0xeeeeee,
+  roughness: 0.4,
+  metalness: 0.0,
+  transparent: false,
   opacity: 0.3,
-  side: THREE.DoubleSide, // 双面渲染
-  transmission: 0.6, // 透光度
-  thickness: 0.2, // 厚度
-  clearcoat: 1.0, // 清漆涂层
+  side: THREE.DoubleSide,
+  transmission: 0.1,
+  thickness: 0.2,
+  clearcoat: 0.5,
+  clearcoatRoughness: 0.4,
+  ior: 1.2,
 });
 
 // 天花板使用不透明材质
@@ -155,7 +166,7 @@ const ceilingMaterial = new THREE.MeshStandardMaterial({
 });
 
 // 天花板
-const ceilingGeometry = new THREE.PlaneGeometry(4, 4);
+const ceilingGeometry = new THREE.PlaneGeometry(4, 6);
 const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
 ceiling.rotation.x = Math.PI / 2;
 ceiling.position.set(0, 0.9, 0);
@@ -178,7 +189,7 @@ const backWall = new THREE.Mesh(
   new THREE.BoxGeometry(4, 2.4, 0.05),
   wallMaterial
 );
-backWall.position.z = -2;
+backWall.position.z = -3;
 backWall.position.y = -0.3; // 降低位置以保持底部对齐
 backWall.position.x = 0.0;
 backWall.receiveShadow = true;
@@ -187,7 +198,7 @@ scene.add(backWall);
 
 // 右墙
 const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.05, 2.4, 3.99),
+  new THREE.BoxGeometry(0.05, 2.4, 5.99),
   wallMaterial
 );
 rightWall.position.x = 2;
@@ -202,7 +213,7 @@ const frontWall = new THREE.Mesh(
   new THREE.BoxGeometry(3.99, 2.4, 0.05),
   wallMaterial
 );
-frontWall.position.z = 2;
+frontWall.position.z = 3;
 frontWall.position.y = -0.3;
 frontWall.position.x = 0;
 frontWall.receiveShadow = true;
@@ -210,7 +221,7 @@ frontWall.castShadow = true;
 scene.add(frontWall);
 
 // 左墙（带窗户）
-const leftWallGeometry = new THREE.BoxGeometry(0.05, 2.4, 4);
+const leftWallGeometry = new THREE.BoxGeometry(0.05, 2.4, 6);
 const windowGeometry = new THREE.BoxGeometry(0.3, 1.2, 1.2);
 
 // 创建墙和窗户的网格
@@ -238,7 +249,7 @@ scene.add(leftWall);
 
 // 床组
 const bedGroup = new THREE.Group();
-bedGroup.position.set(0, 0, 0.3);
+bedGroup.position.set(0, 0, -0.8);
 
 // 家具材质
 const furnitureMaterial = new THREE.MeshStandardMaterial({
@@ -306,7 +317,7 @@ const leftNightstand = new THREE.Mesh(
   new THREE.BoxGeometry(0.5, 0.6, 0.4),
   furnitureMaterial
 );
-leftNightstand.position.set(-1.15, -1.2, -1.8);
+leftNightstand.position.set(-1.15, -1.2, -2.8);
 leftNightstand.castShadow = true;
 scene.add(leftNightstand);
 
@@ -315,7 +326,7 @@ const rightNightstand = new THREE.Mesh(
   new THREE.BoxGeometry(0.5, 0.6, 0.4),
   furnitureMaterial
 );
-rightNightstand.position.set(1.15, -1.2, -1.8);
+rightNightstand.position.set(1.15, -1.2, -2.8);
 rightNightstand.castShadow = true;
 scene.add(rightNightstand);
 
@@ -324,7 +335,7 @@ const benchSeat = new THREE.Mesh(
   new THREE.BoxGeometry(1.2, 0.45, 0.4),
   furnitureMaterial
 );
-benchSeat.position.set(0, -1.275, 0.3);
+benchSeat.position.set(0, -1.275, -0.8);
 benchSeat.castShadow = true;
 scene.add(benchSeat);
 
@@ -344,6 +355,50 @@ tableGroup.add(tableTop);
 tableGroup.add(tableLeg);
 tableGroup.position.set(-2.5, 0.5, 1.0);
 scene.add(tableGroup);
+
+// // 调整渲染器以支持HDR
+// renderer.toneMapping = THREE.ACESFilmicToneMapping;
+// renderer.toneMappingExposure = 1.0;
+
+// // 加载HDR环境贴图
+
+// const exrLoader = new EXRLoader();
+// exrLoader.load("/rogland_clear_night_1k.exr", function (texture) {
+//   texture.mapping = THREE.EquirectangularReflectionMapping;
+//   texture.colorSpace = THREE.SRGBColorSpace;
+
+//   // 生成模糊的环境贴图
+//   const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+
+//   // 设置场景的环境贴图（模糊的）
+//   scene.environment = envMap;
+//   // 设置背景（原始的，不模糊）
+//   scene.background = new THREE.Color(0xbbbbbb);
+
+//   // 调整材质以更好地反映环境光
+//   wallMaterial.envMapIntensity = 0.3;
+//   furnitureMaterial.envMapIntensity = 0.5;
+//   beddingMaterial.envMapIntensity = 0.4;
+
+//   // 释放资源
+//   texture.dispose();
+//   pmremGenerator.dispose();
+// });
+
+// 添加GUI控制色调映射
+const renderingFolder = gui.addFolder("渲染设置");
+renderingFolder.add(renderer, "toneMappingExposure", 0, 2, 0.1).name("曝光");
+const toneMappingOptions = {
+  None: THREE.NoToneMapping,
+  Linear: THREE.LinearToneMapping,
+  Reinhard: THREE.ReinhardToneMapping,
+  Cineon: THREE.CineonToneMapping,
+  ACESFilmic: THREE.ACESFilmicToneMapping,
+};
+renderingFolder
+  .add(renderer, "toneMapping", toneMappingOptions)
+  .name("色调映射");
+renderingFolder.open();
 
 // 动画循环
 function animate() {
