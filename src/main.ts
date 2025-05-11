@@ -86,7 +86,7 @@ scene.add(ambientLight);
 
 // 添加平行光
 const parallelLight = new THREE.DirectionalLight(0xffffff, 0.8);
-parallelLight.position.set(-3, 2, -2);
+parallelLight.position.set(-3, 3, -2);
 parallelLight.castShadow = true;
 scene.add(parallelLight);
 
@@ -141,12 +141,32 @@ const wallMaterial = new THREE.MeshStandardMaterial({
   envMapIntensity: 0.5,
 });
 
+// 天花板
+const ceilingGeometry = new THREE.PlaneGeometry(4, 4);
+const ceiling = new THREE.Mesh(ceilingGeometry, wallMaterial.clone());
+ceiling.rotation.x = Math.PI / 2; // 旋转90度使平面朝下
+ceiling.position.set(0, 1.5, 0); // 设置在房间顶部
+ceiling.receiveShadow = true; // 接收阴影
+ceiling.castShadow = true; // 投射阴影
+scene.add(ceiling);
+
+// 为了更好地观察阴影效果，设置平行光的阴影参数
+parallelLight.shadow.mapSize.width = 2048;
+parallelLight.shadow.mapSize.height = 2048;
+parallelLight.shadow.camera.near = 0.1;
+parallelLight.shadow.camera.far = 15;
+parallelLight.shadow.camera.left = -5;
+parallelLight.shadow.camera.right = 5;
+parallelLight.shadow.camera.top = 5;
+parallelLight.shadow.camera.bottom = -5;
+
 // 后墙
 const backWall = new THREE.Mesh(new THREE.BoxGeometry(4, 3, 0.2), wallMaterial);
 backWall.position.z = -2;
 backWall.position.y = 0;
 backWall.position.x = 0.1;
 backWall.receiveShadow = true;
+backWall.castShadow = true;
 scene.add(backWall);
 
 // 左墙（带窗户）
