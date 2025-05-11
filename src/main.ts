@@ -134,20 +134,33 @@ floor.receiveShadow = true;
 scene.add(floor);
 
 // 创建墙壁
-const wallMaterial = new THREE.MeshStandardMaterial({
-  color: 0xefe5d8, // 温暖浅米色，和木地板更协调
-  roughness: 0.9, // 增加粗糙度
-  metalness: 0.0, // 降低金属感
+const wallMaterial = new THREE.MeshPhysicalMaterial({
+  color: 0xefe5d8,
+  roughness: 0.2,
+  metalness: 0.1,
+  transparent: true,
+  opacity: 0.3,
+  side: THREE.DoubleSide, // 双面渲染
+  transmission: 0.6, // 透光度
+  thickness: 0.2, // 厚度
+  clearcoat: 1.0, // 清漆涂层
+});
+
+// 天花板使用不透明材质
+const ceilingMaterial = new THREE.MeshStandardMaterial({
+  color: 0xefe5d8,
+  roughness: 0.9,
+  metalness: 0.0,
   envMapIntensity: 0.5,
 });
 
 // 天花板
 const ceilingGeometry = new THREE.PlaneGeometry(4, 4);
-const ceiling = new THREE.Mesh(ceilingGeometry, wallMaterial.clone());
-ceiling.rotation.x = Math.PI / 2; // 旋转90度使平面朝下
-ceiling.position.set(0, 0.9, 0); // 降低天花板高度
-ceiling.receiveShadow = true; // 接收阴影
-ceiling.castShadow = true; // 投射阴影
+const ceiling = new THREE.Mesh(ceilingGeometry, ceilingMaterial);
+ceiling.rotation.x = Math.PI / 2;
+ceiling.position.set(0, 0.91, 0);
+ceiling.receiveShadow = true;
+ceiling.castShadow = true;
 scene.add(ceiling);
 
 // 为了更好地观察阴影效果，设置平行光的阴影参数
@@ -174,7 +187,7 @@ scene.add(backWall);
 
 // 右墙
 const rightWall = new THREE.Mesh(
-  new THREE.BoxGeometry(0.2, 2.4, 4),
+  new THREE.BoxGeometry(0.2, 2.4, 3.99),
   wallMaterial
 );
 rightWall.position.x = 2;
@@ -186,12 +199,12 @@ scene.add(rightWall);
 
 // 前墙
 const frontWall = new THREE.Mesh(
-  new THREE.BoxGeometry(4, 2.4, 0.2),
+  new THREE.BoxGeometry(3.78, 2.4, 0.2),
   wallMaterial
 );
 frontWall.position.z = 2;
 frontWall.position.y = -0.3;
-frontWall.position.x = 0.1;
+frontWall.position.x = 0;
 frontWall.receiveShadow = true;
 frontWall.castShadow = true;
 scene.add(frontWall);
