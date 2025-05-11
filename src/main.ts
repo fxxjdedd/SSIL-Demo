@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
-import { DirectionalLightHelper, PointLightHelper } from "three";
+import { CSG } from "three-csg-ts";
 
 // 创建场景
 const scene = new THREE.Scene();
@@ -30,11 +29,6 @@ controls.enableDamping = true;
 const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
 scene.add(ambientLight);
 
-const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(5, 5, 5);
-directionalLight.castShadow = true;
-scene.add(directionalLight);
-
 // 添加平行光
 const parallelLight = new THREE.DirectionalLight(0xffffff, 0.5);
 parallelLight.position.set(2, 5, 2);
@@ -50,7 +44,7 @@ const parallelLightHelper = new THREE.DirectionalLightHelper(
 scene.add(parallelLightHelper);
 
 // 添加点光源
-const pointLight = new THREE.PointLight(0xffffff, 0.6, 10);
+const pointLight = new THREE.PointLight(0xffffff, 0.6, 100);
 pointLight.position.set(0, 2, 0);
 pointLight.castShadow = true;
 scene.add(pointLight);
@@ -94,8 +88,25 @@ backWall.position.x = 0.1;
 backWall.receiveShadow = true;
 scene.add(backWall);
 
-// 左墙
-const leftWall = new THREE.Mesh(new THREE.BoxGeometry(0.2, 3, 4), wallMaterial);
+// 左墙（带窗户）
+const leftWallGeometry = new THREE.BoxGeometry(0.2, 3, 4);
+const windowGeometry = new THREE.BoxGeometry(0.3, 1.2, 1.2); // 窗户比墙稍厚，确保完全穿透
+
+// 创建墙和窗户的网格
+const leftWallMesh = new THREE.Mesh(leftWallGeometry, wallMaterial);
+const windowMesh = new THREE.Mesh(windowGeometry);
+
+// 设置窗户位置（在墙的中上部）
+windowMesh.position.set(-2, 0.3, 0.1);
+
+// 执行布尔减法操作
+const leftWallCSG = CSG.fromMesh(leftWallMesh);
+const windowCSG = CSG.fromMesh(windowMesh);
+const finalWallCSG = leftWallCSG.subtract(windowCSG);
+
+// 创建最终的墙面网格
+const leftWall = CSG.toMesh(finalWallCSG, leftWallMesh.matrix);
+leftWall.material = wallMaterial;
 leftWall.position.x = -2;
 leftWall.position.y = 0;
 leftWall.position.z = 0.1;
